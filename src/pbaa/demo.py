@@ -6,10 +6,9 @@ import supervision as sv
 import torch
 import torchvision
 import wget
-from loguru import logger
-
 from groundingdino.config.GroundingDINO_SwinT_OGC import __file__ as GROUNDING_DINO_CONFIG_PATH
 from groundingdino.util.inference import Model
+from loguru import logger
 from segment_anything import SamPredictor, sam_model_registry
 
 HQ = False
@@ -35,6 +34,7 @@ if not SAM_CHECKPOINT_PATH.exists():
     logger.warning("SAM_CHECKPOINT_PATH doesn't exist")
     logger.info("Start download")
     wget.download(url)
+
 
 def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) -> np.ndarray:
     sam_predictor.set_image(image)
