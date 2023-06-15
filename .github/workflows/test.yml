@@ -2,9 +2,9 @@ name: test
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -25,12 +25,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
+
       - uses: chartboost/ruff-action@v1
         with:
           args: --fix
+
       - name: Install black
         run: pip install black
 
@@ -45,6 +48,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
+
+      - name: Install loguru
+        run: pip install loguru
 
       - name: Check dependency
         run: python src/pbaa/core/check.py

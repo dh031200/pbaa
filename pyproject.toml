@@ -44,6 +44,7 @@ path = "src/pbaa/__about__.py"
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+  "loguru",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
@@ -66,6 +67,7 @@ dependencies = [
   "black>=23.1.0",
   "mypy>=1.0.0",
   "ruff>=0.0.243",
+  "loguru",
 ]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:src/pbaa tests}"
