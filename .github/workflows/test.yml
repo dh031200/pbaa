@@ -47,4 +47,4 @@ jobs:
           python-version: '3.8'
 
       - name: Check dependency
-        run: python src/navibox/core/check.py
+        run: python src/pbaa/core/check.py
