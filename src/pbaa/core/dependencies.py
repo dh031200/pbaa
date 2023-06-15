@@ -6,10 +6,15 @@ python=3.10
 pip
 wget
 numpy
-opencv
 loguru
 torch
 torchvision
+supervision
+transformers
+addict
+yapf
+pycocotools
+timm
 groundingdino
 segment_anything
 """
