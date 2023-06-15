@@ -6,7 +6,6 @@ import supervision as sv
 import torch
 import torchvision
 import wget
-
 from groundingdino.config.GroundingDINO_SwinT_OGC import __file__ as grounding_dino_config_path
 from groundingdino.util.inference import Model
 from loguru import logger
