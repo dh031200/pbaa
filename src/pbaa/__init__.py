@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from pbaa.core.check import check, init
 
-# init()
+init()
 check()
 
 from .demo import run  # noqa

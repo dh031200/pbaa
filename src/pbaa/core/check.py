@@ -209,8 +209,6 @@ def check():
                         install_dependency(name, version)
                 elif name in ["groundingdino", "segment-anything"]:
                     install_from_git(name)
-                # elif name == 'pycocotools' and is_windows:
-                #     install_from_git(name)
                 else:
                     install_dependency(name, version)
                 installed_packages = get_installed_packages()
