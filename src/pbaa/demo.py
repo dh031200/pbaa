@@ -12,13 +12,13 @@ from groundingdino.config.GroundingDINO_SwinT_OGC import __file__ as GROUNDING_D
 from groundingdino.util.inference import Model
 from segment_anything import SamPredictor, sam_model_registry
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 HQ = False
 
 # GroundingDINO config and checkpoint
 GROUNDING_DINO_CHECKPOINT_PATH = Path("groundingdino_swint_ogc.pth")
 if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
-    logger.warning("\nGROUNDING_DINO_CHECKPOINT doesn't exist")
+    logger.warning("GROUNDING_DINO_CHECKPOINT doesn't exist")
     logger.info("Start download")
     wget.download(
         "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
@@ -33,24 +33,24 @@ else:
     SAM_CHECKPOINT_PATH = Path("sam_vit_h_4b8939.pth")
     url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
 if not SAM_CHECKPOINT_PATH.exists():
-    logger.warning("\nSAM_CHECKPOINT_PATH doesn't exist")
+    logger.warning("SAM_CHECKPOINT_PATH doesn't exist")
     logger.info("Start download")
     wget.download(url)
 
 
-def run():
+def run(src, _prompt):
     # Building GroundingDINO inference model
     grounding_dino_model = Model(
         model_config_path=GROUNDING_DINO_CONFIG_PATH, model_checkpoint_path=GROUNDING_DINO_CHECKPOINT_PATH
     )
 
     # Building SAM Model and SAM Predictor
-    sam = sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH)
-    sam_predictor = SamPredictor(sam)
+    # sam = sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH)
+    sam_predictor = SamPredictor(sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH))
 
     # Predict classes and hyper-param for GroundingDINO
-    SOURCE_IMAGE_PATH = "./assets/demo2.jpg"
-    CLASSES = ["The running dog"]
+    SOURCE_IMAGE_PATH = src
+    prompt = [*map(str.lower, _prompt.keys())]
     BOX_THRESHOLD = 0.25
     NMS_THRESHOLD = 0.8
 
@@ -59,12 +59,12 @@ def run():
 
     # detect objects
     detections = grounding_dino_model.predict_with_classes(
-        image=image, classes=CLASSES, box_threshold=BOX_THRESHOLD, text_threshold=BOX_THRESHOLD
+        image=image, classes=prompt, box_threshold=BOX_THRESHOLD, text_threshold=BOX_THRESHOLD
     )
 
     # annotate image with detections
     box_annotator = sv.BoxAnnotator()
-    labels = [f"{CLASSES[class_id]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
+    labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
     annotated_frame = box_annotator.annotate(scene=image.copy(), detections=detections, labels=labels)
 
     # save the annotated grounding dino image
@@ -102,7 +102,7 @@ def run():
     # annotate image with detections
     box_annotator = sv.BoxAnnotator()
     mask_annotator = sv.MaskAnnotator()
-    labels = [f"{CLASSES[class_id]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
+    labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
     annotated_image = mask_annotator.annotate(scene=image.copy(), detections=detections)
     annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections, labels=labels)
 
@@ -111,4 +111,7 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    target = 'assets/demo3.jpg'
+    prompt = {"Indoor chair" : "chair"}
+    prompt = {i.lower():v for i,v in prompt}
+    run(target, prompt)
