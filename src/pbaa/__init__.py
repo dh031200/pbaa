@@ -5,4 +5,4 @@ from pbaa.core.check import check
 
 check()
 
-from .demo import run   # noqa
+from .demo import run  # noqa

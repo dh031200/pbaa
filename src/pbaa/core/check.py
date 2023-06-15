@@ -131,11 +131,17 @@ def install_torchvision_linux_cpu():
 
 def install_from_git(name):
     if name == "groundingdino":
-        logger.info(subprocess.check_output("pip install git+https://github.com/IDEA-Research/GroundingDINO",
-                                            shell=True).decode())
+        logger.info(
+            subprocess.check_output(
+                "pip install git+https://github.com/IDEA-Research/GroundingDINO", shell=True
+            ).decode()
+        )
     elif name == "segment_anything":
-        logger.info(subprocess.check_output("pip install git+https://github.com/facebookresearch/segment-anything",
-                                            shell=True).decode())
+        logger.info(
+            subprocess.check_output(
+                "pip install git+https://github.com/facebookresearch/segment-anything", shell=True
+            ).decode()
+        )
     else:
         raise ModuleNotFoundError
 
