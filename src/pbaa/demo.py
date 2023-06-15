@@ -6,10 +6,9 @@ import supervision as sv
 import torch
 import torchvision
 import wget
-from loguru import logger
-
 from groundingdino.config.GroundingDINO_SwinT_OGC import __file__ as GROUNDING_DINO_CONFIG_PATH
 from groundingdino.util.inference import Model
+from loguru import logger
 from segment_anything import SamPredictor, sam_model_registry
 
 # DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -111,7 +110,7 @@ def run(src, _prompt):
 
 
 if __name__ == "__main__":
-    target = 'assets/demo3.jpg'
-    prompt = {"Indoor chair" : "chair"}
-    prompt = {i.lower():v for i,v in prompt}
+    target = "assets/demo3.jpg"
+    prompt = {"Indoor chair": "chair"}
+    prompt = {i.lower(): v for i, v in prompt}
     run(target, prompt)
