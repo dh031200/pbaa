@@ -8,12 +8,22 @@
 **Table of Contents**
 
 - [Installation](#installation)
+- [Usage](#Usage)
 - [License](#license)
 
 ## Installation
 
 ```console
 pip install pbaa
+```
+
+## Usage
+### CLI
+```console
+# pbaa -s <Source> -p <prompt> <class> -p <prompt> <class> ...
+
+pbaa -s source_image.jpg -p "black dog" dog
+pbaa -s source_image.jpg -p "black dog" dog -p "white cat" cat
 ```
 
 ## License

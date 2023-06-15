@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2023-present dh031200 <imbird0312@gmail.com>
 #
 # SPDX-License-Identifier: Apache-2.0
-import os
-import sys
 import importlib
+import os
 import platform
 import subprocess
+import sys
 from collections import defaultdict
 
 from loguru import logger
@@ -14,8 +14,8 @@ from pbaa.__about__ import PYTHON_VERSION_MAJOR, PYTHON_VERSION_MINOR
 
 
 def init():
-    sys.path.append(f'{os.getcwd()}/GroundingDINO')
-    sys.path.append(f'{os.getcwd()}/segment-anything')
+    sys.path.append(f"{os.getcwd()}/GroundingDINO")
+    sys.path.append(f"{os.getcwd()}/segment-anything")
 
 
 def check_cuda():
@@ -156,7 +156,7 @@ def install_from_git(name):
         logger.info(
             subprocess.check_output(
                 'pip install "git+https://github.com/philferriere/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"',
-                shell=True
+                shell=True,
             ).decode()
         )
     else:
