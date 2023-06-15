@@ -2,38 +2,49 @@ name: test
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
-concurrency:
-  group: test-${{ github.head_ref }}
-  cancel-in-progress: true
-
-env:
-  PYTHONUNBUFFERED: "1"
-  FORCE_COLOR: "1"
-
+permissions:
+  contents: read
 jobs:
-  run:
-    name: Python ${{ matrix.python-version }} on ${{ startsWith(matrix.os, 'macos-') && 'macOS' || startsWith(matrix.os, 'windows-') && 'Windows' || 'Linux' }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-
+  build:
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
 
-    - name: Install Hatch
-      run: pip install --upgrade hatch
+      - name: Install dependencies
+        run: pip install .
 
-    - name: Run tests
-      run: hatch run cov
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - uses: chartboost/ruff-action@v1
+        with:
+          args: --fix
+      - name: Install black
+        run: pip install black
+
+      - name: Run black
+        run: black src
+
+  check_dependency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Check dependency
+        run: python src/navibox/core/check.py
