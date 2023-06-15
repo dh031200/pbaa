@@ -43,6 +43,9 @@ def get_installed_packages():
 def package_rename(_name):
     if _name == "opencv":
         _name = "opencv-python"
+    elif _name == "segment_anything":
+        _name = "segment-anything"
+
     return _name
 
 
@@ -136,7 +139,7 @@ def install_from_git(name):
                 "pip install git+https://github.com/IDEA-Research/GroundingDINO", shell=True
             ).decode()
         )
-    elif name == "segment_anything":
+    elif name == "segment-anything":
         logger.info(
             subprocess.check_output(
                 "pip install git+https://github.com/facebookresearch/segment-anything", shell=True
@@ -190,7 +193,7 @@ def check():
                             install_torchvision_linux_cpu()
                     elif is_windows:
                         install_dependency(name, version)
-                elif name in ["groundingdino", "segment_anything"]:
+                elif name in ["groundingdino", "segment-anything"]:
                     install_from_git(name)
                 else:
                     install_dependency(name, version)
