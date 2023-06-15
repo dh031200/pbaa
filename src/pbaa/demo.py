@@ -6,7 +6,8 @@ import supervision as sv
 import torch
 import torchvision
 import wget
-from groundingdino.config.GroundingDINO_SwinT_OGC import __file__ as GROUNDING_DINO_CONFIG_PATH
+
+from groundingdino.config.GroundingDINO_SwinT_OGC import __file__ as grounding_dino_config_path
 from groundingdino.util.inference import Model
 from loguru import logger
 from segment_anything import SamPredictor, sam_model_registry
@@ -49,24 +50,23 @@ def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) ->
 def run(src, _prompt):
     # Building GroundingDINO inference model
     grounding_dino_model = Model(
-        model_config_path=GROUNDING_DINO_CONFIG_PATH, model_checkpoint_path=GROUNDING_DINO_CHECKPOINT_PATH
+        model_config_path=grounding_dino_config_path, model_checkpoint_path=GROUNDING_DINO_CHECKPOINT_PATH
     )
 
     # Building SAM Model and SAM Predictor
     sam_predictor = SamPredictor(sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH))
 
     # Predict classes and hyper-param for GroundingDINO
-    SOURCE_IMAGE_PATH = src
     prompt = [*map(str.lower, _prompt.keys())]
-    BOX_THRESHOLD = 0.25
-    NMS_THRESHOLD = 0.8
+    box_threshold = 0.25
+    nms_threshold = 0.8
 
     # load image
-    image = cv2.imread(SOURCE_IMAGE_PATH)
+    image = cv2.imread(src)
 
     # detect objects
     detections = grounding_dino_model.predict_with_classes(
-        image=image, classes=prompt, box_threshold=BOX_THRESHOLD, text_threshold=BOX_THRESHOLD
+        image=image, classes=prompt, box_threshold=box_threshold, text_threshold=box_threshold
     )
 
     # annotate image with detections
@@ -80,7 +80,7 @@ def run(src, _prompt):
     # NMS post process
     logger.info(f"Before NMS: {len(detections.xyxy)} boxes")
     nms_idx = (
-        torchvision.ops.nms(torch.from_numpy(detections.xyxy), torch.from_numpy(detections.confidence), NMS_THRESHOLD)
+        torchvision.ops.nms(torch.from_numpy(detections.xyxy), torch.from_numpy(detections.confidence), nms_threshold)
         .numpy()
         .tolist()
     )
