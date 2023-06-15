@@ -166,7 +166,6 @@ def check():
             name, version = parsed
 
         name = package_rename(name)
-
         if name == "python":
             python_version_check()
         elif name == "pip":
