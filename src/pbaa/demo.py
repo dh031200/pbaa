@@ -18,7 +18,7 @@ HQ = False
 # GroundingDINO config and checkpoint
 GROUNDING_DINO_CHECKPOINT_PATH = Path("groundingdino_swint_ogc.pth")
 if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
-    logger.warn("\nGROUNDING_DINO_CHECKPOINT doesn't exist")
+    logger.warning("\nGROUNDING_DINO_CHECKPOINT doesn't exist")
     logger.info("Start download")
     wget.download(
         "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
@@ -33,7 +33,7 @@ else:
     SAM_CHECKPOINT_PATH = Path("sam_vit_h_4b8939.pth")
     url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
 if not SAM_CHECKPOINT_PATH.exists():
-    logger.info("\nSAM_CHECKPOINT_PATH doesn't exist")
+    logger.warning("\nSAM_CHECKPOINT_PATH doesn't exist")
     logger.info("Start download")
     wget.download(url)
 
