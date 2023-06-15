@@ -6,9 +6,11 @@ import supervision as sv
 import torch
 import torchvision
 import wget
+from loguru import logger
+
 from groundingdino.config.GroundingDINO_SwinT_OGC import __file__ as GROUNDING_DINO_CONFIG_PATH
 from groundingdino.util.inference import Model
-from segment_anything import SamPredictor, sam_hq_model_registry, sam_model_registry
+from segment_anything import SamPredictor, sam_model_registry
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 HQ = False
@@ -16,8 +18,8 @@ HQ = False
 # GroundingDINO config and checkpoint
 GROUNDING_DINO_CHECKPOINT_PATH = Path("groundingdino_swint_ogc.pth")
 if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
-    print("GROUNDING_DINO_CHECKPOINT doesn't exist")
-    print("Start download")
+    logger.warn("\nGROUNDING_DINO_CHECKPOINT doesn't exist")
+    logger.info("Start download")
     wget.download(
         "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
     )
@@ -31,8 +33,8 @@ else:
     SAM_CHECKPOINT_PATH = Path("sam_vit_h_4b8939.pth")
     url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
 if not SAM_CHECKPOINT_PATH.exists():
-    print("SAM_CHECKPOINT_PATH doesn't exist")
-    print("Start download")
+    logger.info("\nSAM_CHECKPOINT_PATH doesn't exist")
+    logger.info("Start download")
     wget.download(url)
 
 

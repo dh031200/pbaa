@@ -4,6 +4,7 @@
 dependencies = """
 python=3.10
 pip
+wget
 numpy
 opencv
 loguru

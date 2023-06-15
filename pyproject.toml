@@ -26,6 +26,7 @@ classifiers = [
 dependencies = [
   "click",
   "loguru",
+  "wget",
 ]
 
 [project.urls]
