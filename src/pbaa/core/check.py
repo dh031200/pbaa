@@ -2,20 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 import importlib
-import os
 import platform
 import subprocess
-import sys
 from collections import defaultdict
 
 from loguru import logger
 
 from pbaa.__about__ import PYTHON_VERSION_MAJOR, PYTHON_VERSION_MINOR
-
-
-def init():
-    sys.path.append(f"{os.getcwd()}/GroundingDINO")
-    sys.path.append(f"{os.getcwd()}/segment-anything")
 
 
 def check_cuda():
@@ -26,9 +19,9 @@ def check_cuda():
 
 def get_dependencies():
     if __name__ == "__main__":
-        from dependencies import dependencies
+        from prerequisite import dependencies
     else:
-        from pbaa.core.dependencies import dependencies
+        from pbaa.core.prerequisite import dependencies
 
     return dependencies.split()
 
@@ -209,8 +202,6 @@ def check():
                         install_dependency(name, version)
                 elif name in ["groundingdino", "segment-anything"]:
                     install_from_git(name)
-                # elif name == 'pycocotools' and is_windows:
-                #     install_from_git(name)
                 else:
                     install_dependency(name, version)
                 installed_packages = get_installed_packages()

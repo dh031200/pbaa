@@ -1,9 +1,13 @@
 # SPDX-FileCopyrightText: 2023-present dh031200 <imbird0312@gmail.com>
 #
 # SPDX-License-Identifier: Apache-2.0
-from pbaa.core.check import check, init
+from loguru import logger
 
-# init()
-check()
+from pbaa.core import model_init, run
 
-from .demo import run  # noqa
+
+def test_success():
+    logger.info("Test Successed")
+
+
+__all__ = "model_init", "run", "test_success"
