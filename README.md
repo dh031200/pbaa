@@ -57,6 +57,6 @@ inference("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
 `pbaa` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
 
 ## Acknowledgements
-Grounded-Segment-Anything : [https://github.com/IDEA-Research/Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything)
-Grounding DINO : [https://github.com/IDEA-Research/GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)
-Segment-anything : [https://github.com/facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything)
+Grounded-Segment-Anything : [https://github.com/IDEA-Research/Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything)  
+Grounding DINO : [https://github.com/IDEA-Research/GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)  
+Segment-anything : [https://github.com/facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything)  
