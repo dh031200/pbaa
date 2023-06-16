@@ -1,3 +1,4 @@
+from json import dump
 from pathlib import Path
 
 import cv2
@@ -99,11 +100,8 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
     for mask in detections.mask:
         canvas = np.zeros((image.shape[:2]), dtype=np.uint8)
         canvas[mask] = 255
-        _, poly, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        polys.append(poly)
-
-    logger.info(f"boxes : {boxes}")
-    logger.info(f"polys : {polys}")
+        poly, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        polys.append(poly[0].squeeze().astype(int).tolist())
 
     mask_canvas = np.zeros_like(image, dtype=np.uint8)
 
@@ -114,6 +112,14 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
     annotated_image = mask_annotator.annotate(scene=image.copy(), detections=detections)
     annotated_mask = mask_annotator.annotate(scene=mask_canvas, detections=detections)
     annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections, labels=labels)
+
+    class_id = detections.class_id.astype(int).tolist()
+    json_data = {}
+    for idx, (_id, box, poly) in enumerate(zip(class_id, boxes, polys)):
+        json_data[idx] = {"cls": _id, "box": box, "poly": poly}
+
+    with open(f"{dst / src.stem}.json", "w") as f:
+        dump(json_data, f, indent=4, ensure_ascii=False)
 
     # save images
     cv2.imwrite(f"{dst / src.stem}_det.jpg", annotated_frame)
