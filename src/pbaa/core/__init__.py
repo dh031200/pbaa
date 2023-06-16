@@ -5,6 +5,6 @@ from pbaa.core.check import check
 
 check()
 
-from .grounded_sam import model_init, run  # noqa
+from .grounded_sam import model_init, inference  # noqa
 
-__all__ = "model_init", "run"
+__all__ = "model_init", "inference"

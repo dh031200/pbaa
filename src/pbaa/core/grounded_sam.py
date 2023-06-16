@@ -49,7 +49,9 @@ def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) ->
     return np.array(result_masks)
 
 
-def run(src, _prompt):
+def inference(src, _prompt):
+    _prompt = {i.lower(): v for i, v in _prompt}
+
     # Building GroundingDINO inference model
     grounding_dino_model = Model(
         model_config_path=grounding_dino_config_path, model_checkpoint_path=GROUNDING_DINO_CHECKPOINT_PATH
