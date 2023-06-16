@@ -5,6 +5,7 @@ from loguru import logger
 
 try:
     import pbaa
+
     pbaa.test_success()
 except Exception as E:
     logger.error(E)
