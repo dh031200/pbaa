@@ -52,5 +52,8 @@ jobs:
       - name: Install loguru
         run: pip install loguru
 
+      - name: Install pbaa
+        run: pip install .
+
       - name: Check dependency
         run: python src/pbaa/core/check.py
