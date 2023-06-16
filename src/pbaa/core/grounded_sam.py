@@ -78,11 +78,6 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
     labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
     annotated_frame = box_annotator.annotate(scene=image.copy(), detections=detections, labels=labels)
 
-    # save the annotated grounding dino image
-    cv2.imwrite(f"{dst / src.stem}_det.jpg", annotated_frame)
-
-    # NMS post process
-    logger.info(f"Before NMS: {len(detections.xyxy)} boxes")
     nms_idx = (
         torchvision.ops.nms(torch.from_numpy(detections.xyxy), torch.from_numpy(detections.confidence), nms_threshold)
         .numpy()
@@ -93,20 +88,34 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
     detections.confidence = detections.confidence[nms_idx]
     detections.class_id = detections.class_id[nms_idx]
 
-    logger.info(f"After NMS: {len(detections.xyxy)} boxes")
-
     # Prompting SAM with detected boxes
     # convert detections to masks
     detections.mask = segment(
         sam_predictor=sam_predictor, image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB), xyxy=detections.xyxy
     )
 
+    boxes = detections.xyxy.astype(int).tolist()
+    polys = []
+    for mask in detections.mask:
+        canvas = np.zeros((image.shape[:2]), dtype=np.uint8)
+        canvas[mask] = 255
+        _, poly, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        polys.append(poly)
+
+    logger.info(f"boxes : {boxes}")
+    logger.info(f"polys : {polys}")
+
+    mask_canvas = np.zeros_like(image, dtype=np.uint8)
+
     # annotate image with detections
     box_annotator = sv.BoxAnnotator()
     mask_annotator = sv.MaskAnnotator()
     labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
     annotated_image = mask_annotator.annotate(scene=image.copy(), detections=detections)
+    annotated_mask = mask_annotator.annotate(scene=mask_canvas, detections=detections)
     annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections, labels=labels)
 
-    # save the annotated grounded-sam image
+    # save images
+    cv2.imwrite(f"{dst / src.stem}_det.jpg", annotated_frame)
     cv2.imwrite(f"{dst / src.stem}_seg.jpg", annotated_image)
+    cv2.imwrite(f"{dst / src.stem}_mask.jpg", annotated_mask)
