@@ -13,11 +13,6 @@ from loguru import logger
 from pbaa.__about__ import PYTHON_VERSION_MAJOR, PYTHON_VERSION_MINOR
 
 
-def init():
-    sys.path.append(f"{os.getcwd()}/GroundingDINO")
-    sys.path.append(f"{os.getcwd()}/segment-anything")
-
-
 def check_cuda():
     import torch
 

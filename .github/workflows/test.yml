@@ -56,4 +56,4 @@ jobs:
         run: pip install .
 
       - name: Check dependency
-        run: python src/pbaa/core/check.py
+        run: python tests/test_dependencies.py
