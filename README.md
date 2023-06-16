@@ -1,9 +1,9 @@
-# pbaa : Prompt-based automatic annotation
+# pbaa : Prompt-Based Automatic Annotation
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pbaa.svg)](https://pypi.org/project/pbaa)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pbaa.svg)](https://pypi.org/project/pbaa)
 
-Easy inference implementation of [Grounded-Sam](https://github.com/IDEA-Research/Grounded-Segment-Anything) for
+Easy inference implementation of [Grounded-SAM](https://github.com/IDEA-Research/Grounded-Segment-Anything) for
 **Prompt-based automatic annotation**
 
 -----
@@ -12,11 +12,8 @@ Easy inference implementation of [Grounded-Sam](https://github.com/IDEA-Research
 
 - [Installation](#installation)
 - [Usage](#Usage)
+- [Demo](#Demo)
 - [License](#license)
-
-## Grounded-SAM
-
-Most of code based on [Grounded-Sam](https://github.com/IDEA-Research/Grounded-Segment-Anything)
 
 ## Installation
 
@@ -27,7 +24,6 @@ pip install pbaa
 ## Usage
 
 ### Options
-
 
 ```console
 Usage: pbaa [OPTIONS]
@@ -61,21 +57,35 @@ model_init()
 inference("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
 ```
 
-### Demo
+## Demo
 
 ```console
+## Source : assets/demo9.jpg
+## prompts : {"plant" : "plant", "picture" : "picture", "dog": "dog", "lamp" : "lamp", "carpet" : "carpet", "sofa" : "sofa"}
+
 pbaa -s assets/demo9.jpg -p plant plant -p picture picture -p dog dog -p lamp lamp -p carpet carpet -p sofa sofa
 ```
 
 | Origin                                                                          | Detection                                                                              | Segmentation                                                                           |
 |---------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
 | ![Before](https://github.com/dh031200/pbaa/blob/main/assets/demo9.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_det.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_seg.jpg?raw=true) |
+### Result data
+[demo9.json](assets/demo9.json)<br>
+```console
+json structure
 
+index
+  ├ cls : class name
+  ├ conf : confidence score
+  ├ box : bounding box coordinates
+  └ poly : polygon coordinates
+```
 ## License
 
 `pbaa` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
 
 ## Acknowledgements
-Grounded-Segment-Anything : [https://github.com/IDEA-Research/Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything)
-Grounding DINO : [https://github.com/IDEA-Research/GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)
-Segment-anything : [https://github.com/facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything)
+
+Grounded-Segment-Anything : [https://github.com/IDEA-Research/Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything)<br>
+Grounding DINO : [https://github.com/IDEA-Research/GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)<br>
+Segment-anything : [https://github.com/facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything)<br>

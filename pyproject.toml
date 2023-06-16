@@ -9,7 +9,7 @@ description = 'Prompt based automatic annotation'
 readme = "README.md"
 requires-python = ">=3.8"
 license = "Apache-2.0"
-keywords = ["Grounded-Segment-Anything", "Prompt", "Annotation"]
+keywords = ["pbaa", "Prompt based automatic annotation", "grounded-sam", "segment-anything", "groundingdino"]
 authors = [
   { name = "dh031200", email = "imbird0312@gmail.com" },
 ]
@@ -22,7 +22,6 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
   "click",
