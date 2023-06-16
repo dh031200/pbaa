@@ -101,7 +101,11 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
         canvas = np.zeros((image.shape[:2]), dtype=np.uint8)
         canvas[mask] = 255
         poly, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        polys.append(poly[0].squeeze().astype(int).tolist())
+
+        _polys = []
+        for _poly in poly:
+            _polys.append(_poly.squeeze().astype(int).tolist())
+        polys.append(_polys)
 
     mask_canvas = np.zeros_like(image, dtype=np.uint8)
 
@@ -116,7 +120,7 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
     class_id = detections.class_id.astype(int).tolist()
     json_data = {}
     for idx, (_id, box, poly) in enumerate(zip(class_id, boxes, polys)):
-        json_data[idx] = {"cls": _id, "box": box, "poly": poly}
+        json_data[idx] = {"cls": _prompt[prompt[_id]], "box": box, "poly": poly}
 
     with open(f"{dst / src.stem}.json", "w") as f:
         dump(json_data, f, indent=4, ensure_ascii=False)
