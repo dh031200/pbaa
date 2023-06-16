@@ -8,4 +8,4 @@ from grounded_sam import model_init, run
 init()
 check()
 
-__all__ = "model_init", "run"
+__all__ = "model_init", "run", "dependencies"
