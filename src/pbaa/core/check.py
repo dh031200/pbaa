@@ -26,9 +26,9 @@ def check_cuda():
 
 def get_dependencies():
     if __name__ == "__main__":
-        from dependencies import dependencies
+        from prerequisite import dependencies
     else:
-        from pbaa.core.dependencies import dependencies
+        from pbaa.core.prerequisite import dependencies
 
     return dependencies.split()
 
