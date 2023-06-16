@@ -24,6 +24,7 @@ else:
 # Segment-Anything checkpoint
 SAM_ENCODER_VERSION = "vit_h"
 
+
 def model_init():
     # GroundingDINO config and checkpoint
     if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
