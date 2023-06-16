@@ -7,4 +7,4 @@ try:
     import pbaa
 except Exception as E:
     logger.error(E)
-    raise ImportError
+    raise ImportError from E

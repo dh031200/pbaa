@@ -2,10 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 import importlib
-import os
 import platform
 import subprocess
-import sys
 from collections import defaultdict
 
 from loguru import logger
