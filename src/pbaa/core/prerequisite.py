@@ -6,6 +6,7 @@ python=3.10
 pip
 wget
 numpy
+opencv-python
 loguru
 torch
 torchvision
