@@ -2,5 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 from pbaa.core import model_init, run
+from loguru import logger
 
-__all__ = "model_init", "run"
+def test_success():
+    logger.info('Test Successed')
+
+__all__ = "model_init", "run", "test_success"
