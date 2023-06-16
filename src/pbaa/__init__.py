@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from loguru import logger
 
-from pbaa.core import model_init, inference
+from pbaa.core import inference, model_init
 
 
 def test_success():
