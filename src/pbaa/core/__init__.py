@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 from check import check, init
-from dependencies import dependencies
-from grounded_sam import model_init, run
 
 init()
 check()
+
+from dependencies import dependencies  # noqa
+from grounded_sam import model_init, run  # noqa
 
 __all__ = "model_init", "run", "dependencies"
