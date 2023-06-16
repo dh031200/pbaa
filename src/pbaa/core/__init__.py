@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 from src.pbaa.core.grounded_sam import model_init, run
 from dependencies import dependencies
-from check import check
+from check import init, check
 
-__all__ = "dependencies", "check", "model_init", "run"
+init()
+check()
+
+__all__ = "model_init", "run"
