@@ -5,6 +5,6 @@ from loguru import logger
 
 try:
     import pbaa
-except Exception:
-    logger.error(pbaa)
+except Exception as E:
+    logger.error(E)
     raise ImportError
