@@ -95,6 +95,7 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
         sam_predictor=sam_predictor, image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB), xyxy=detections.xyxy
     )
 
+    confidences = [round(i, 4) for i in detections.confidence.astype(float)]
     boxes = detections.xyxy.astype(int).tolist()
     polys = []
     for mask in detections.mask:
@@ -119,8 +120,8 @@ def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
 
     class_id = detections.class_id.astype(int).tolist()
     json_data = {}
-    for idx, (_id, box, poly) in enumerate(zip(class_id, boxes, polys)):
-        json_data[idx] = {"cls": _prompt[prompt[_id]], "box": box, "poly": poly}
+    for idx, (_id, conf, box, poly) in enumerate(zip(class_id, confidences, boxes, polys)):
+        json_data[idx] = {"cls": _prompt[prompt[_id]], "conf": conf, "box": box, "poly": poly}
 
     with open(f"{dst / src.stem}.json", "w") as f:
         dump(json_data, f, indent=4, ensure_ascii=False)
