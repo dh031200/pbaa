@@ -6,7 +6,6 @@ from check import check, init
 init()
 check()
 
-from dependencies import dependencies  # noqa
 from grounded_sam import model_init, run  # noqa
 
-__all__ = "model_init", "run", "dependencies"
+__all__ = "model_init", "run"
