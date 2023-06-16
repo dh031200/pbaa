@@ -28,6 +28,7 @@ pip install pbaa
 
 ### Options
 
+
 ```console
 Usage: pbaa [OPTIONS]
 
@@ -75,7 +76,6 @@ pbaa -s assets/demo9.jpg -p plant plant -p picture picture -p dog dog -p lamp la
 `pbaa` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
 
 ## Acknowledgements
-
 Grounded-Segment-Anything : [https://github.com/IDEA-Research/Grounded-Segment-Anything](https://github.com/IDEA-Research/Grounded-Segment-Anything)
 Grounding DINO : [https://github.com/IDEA-Research/GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)
 Segment-anything : [https://github.com/facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything)
