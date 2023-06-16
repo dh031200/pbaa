@@ -49,7 +49,9 @@ def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) ->
     return np.array(result_masks)
 
 
-def inference(src, _prompt):
+def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
+    src = Path(_src)
+    dst = Path(output_dir)
     _prompt = {i.lower(): v for i, v in _prompt}
 
     # Building GroundingDINO inference model
@@ -62,11 +64,9 @@ def inference(src, _prompt):
 
     # Predict classes and hyper-param for GroundingDINO
     prompt = [*map(str.lower, _prompt.keys())]
-    box_threshold = 0.25
-    nms_threshold = 0.8
 
     # load image
-    image = cv2.imread(src)
+    image = cv2.imread(_src)
 
     # detect objects
     detections = grounding_dino_model.predict_with_classes(
@@ -79,7 +79,7 @@ def inference(src, _prompt):
     annotated_frame = box_annotator.annotate(scene=image.copy(), detections=detections, labels=labels)
 
     # save the annotated grounding dino image
-    cv2.imwrite("groundingdino_annotated_image.jpg", annotated_frame)
+    cv2.imwrite(f"{dst / src.stem}_det.jpg", annotated_frame)
 
     # NMS post process
     logger.info(f"Before NMS: {len(detections.xyxy)} boxes")
@@ -109,4 +109,4 @@ def inference(src, _prompt):
     annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections, labels=labels)
 
     # save the annotated grounded-sam image
-    cv2.imwrite("grounded_sam_annotated_image.jpg", annotated_image)
+    cv2.imwrite(f"{dst / src.stem}_seg.jpg", annotated_image)
