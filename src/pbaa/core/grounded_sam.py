@@ -12,28 +12,30 @@ from loguru import logger
 from segment_anything import SamPredictor, sam_model_registry
 
 HQ = False
-
-# GroundingDINO config and checkpoint
 GROUNDING_DINO_CHECKPOINT_PATH = Path("groundingdino_swint_ogc.pth")
-if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
-    logger.warning("GROUNDING_DINO_CHECKPOINT doesn't exist")
-    logger.info("Start download")
-    wget.download(
-        "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
-    )
 
-# Segment-Anything checkpoint
-SAM_ENCODER_VERSION = "vit_h"
 if HQ:
     SAM_CHECKPOINT_PATH = Path("sam_hq_vit_h.pth")
     url = "https://blueclairvoyancestorage.blob.core.windows.net/package/sam_hq_vit_h.pth"
 else:
     SAM_CHECKPOINT_PATH = Path("sam_vit_h_4b8939.pth")
     url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
-if not SAM_CHECKPOINT_PATH.exists():
-    logger.warning("SAM_CHECKPOINT_PATH doesn't exist")
-    logger.info("Start download")
-    wget.download(url)
+
+# Segment-Anything checkpoint
+SAM_ENCODER_VERSION = "vit_h"
+
+def model_init():
+    # GroundingDINO config and checkpoint
+    if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
+        logger.warning("GROUNDING_DINO_CHECKPOINT doesn't exist")
+        logger.info("Start download")
+        wget.download(
+            "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
+        )
+    if not SAM_CHECKPOINT_PATH.exists():
+        logger.warning("SAM_CHECKPOINT_PATH doesn't exist")
+        logger.info("Start download")
+        wget.download(url)
 
 
 def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) -> np.ndarray:

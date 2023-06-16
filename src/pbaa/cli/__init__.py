@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import click
 
-from pbaa import run
+from pbaa import model_init, run
 from pbaa.__about__ import __version__
 
 
@@ -13,4 +13,5 @@ from pbaa.__about__ import __version__
 @click.option("--prompt", "-p", type=(str, str), multiple=True)
 def pbaa(src, prompt):
     prompt = {i.lower(): v for i, v in prompt}
+    model_init()
     run(src, dict(prompt))
