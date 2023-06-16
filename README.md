@@ -70,8 +70,16 @@ pbaa -s assets/demo9.jpg -p plant plant -p picture picture -p dog dog -p lamp la
 |---------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
 | ![Before](https://github.com/dh031200/pbaa/blob/main/assets/demo9.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_det.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_seg.jpg?raw=true) |
 ### Result data
-[demo9.json](assets/demo9.json)
-boxes
+[demo9.json](assets/demo9.json)<br>
+```console
+json structure
+
+index
+  ├ cls : class name
+  ├ conf : confidence score
+  ├ box : bounding box coordinates
+  └ poly : polygon coordinates
+```
 ## License
 
 `pbaa` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
