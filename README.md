@@ -18,6 +18,18 @@ Easy inference implementation of [Grounded-SAM](https://github.com/IDEA-Research
 
 ## Installation
 
+### Docker (Recommend)
+
+```console
+git clone https://github.com/dh031200/pbaa.git
+docker build docker -t pbaa:latest
+docker run --gpus all -it --ipc=host -v `pwd`:/workspace pbaa:latest
+```
+
+### Without docker
+
+The code requires `python>=3.8`, `CUDA==11.7`.
+
 ```console
 pip install pbaa
 ```
@@ -55,6 +67,7 @@ pbaa -s source_image.jpg -p "black dog" dog -p "white cat" cat
 from pbaa import model_init, inference
 
 model_init()
+# inference(<Source path>, <prompt:class>, box_threshold=0.25, nms_threshold=0.8, output_dir=".")
 inference("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
 ```
 
@@ -67,11 +80,14 @@ inference("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
 pbaa -s assets/demo9.jpg -p plant plant -p picture picture -p dog dog -p lamp lamp -p carpet carpet -p sofa sofa
 ```
 
-| Origin                                                                          | Detection                                                                              | Segmentation                                                                           |
-|:-------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|
+|                                     Origin                                      |                                       Detection                                        |                                       Segmentation                                        |
+|:-------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------:|
 | ![Before](https://github.com/dh031200/pbaa/blob/main/assets/demo9.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_det.jpg?raw=true) | ![segmentation](https://github.com/dh031200/pbaa/blob/main/assets/demo9_seg.jpg?raw=true) |
+
 ### Result data
+
 [demo9.json](https://github.com/dh031200/pbaa/blob/main/assets/demo9.json)<br>
+
 ```console
 json structure
 
@@ -81,6 +97,7 @@ index
   ├ box : bounding box coordinates
   └ poly : polygon coordinates
 ```
+
 ## License
 
 `pbaa` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
