@@ -67,10 +67,10 @@ pbaa -s assets/demo9.jpg -p plant plant -p picture picture -p dog dog -p lamp la
 ```
 
 | Origin                                                                          | Detection                                                                              | Segmentation                                                                           |
-|---------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| ![Before](https://github.com/dh031200/pbaa/blob/main/assets/demo9.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_det.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_seg.jpg?raw=true) |
+|:-------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|
+| ![Before](https://github.com/dh031200/pbaa/blob/main/assets/demo9.jpg?raw=true) | ![detection](https://github.com/dh031200/pbaa/blob/main/assets/demo9_det.jpg?raw=true) | ![segmentation](https://github.com/dh031200/pbaa/blob/main/assets/demo9_seg.jpg?raw=true) |
 ### Result data
-[demo9.json](assets/demo9.json)<br>
+[demo9.json](https://github.com/dh031200/pbaa/blob/main/assets/demo9.json)<br>
 ```console
 json structure
 
