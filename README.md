@@ -14,6 +14,7 @@ Easy inference implementation of [Grounded-SAM](https://github.com/IDEA-Research
 - [Usage](#Usage)
 - [Demo](#Demo)
 - [License](#license)
+- [Acknowledgements](#acknowledgements)
 
 ## Installation
 
