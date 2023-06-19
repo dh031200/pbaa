@@ -18,4 +18,5 @@ pycocotools
 timm
 groundingdino
 segment_anything
+gradio
 """

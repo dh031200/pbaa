@@ -5,6 +5,7 @@ from pbaa.core.check import check
 
 check()
 
+from.gradio_app import app
 from .grounded_sam import model_init, inference  # noqa
 
-__all__ = "model_init", "inference"
+__all__ = "model_init", "inference", "app"

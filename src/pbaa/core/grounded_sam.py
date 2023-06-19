@@ -51,9 +51,24 @@ def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) ->
 
 
 def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="."):
-    src = Path(_src)
     dst = Path(output_dir)
     dst.mkdir(parents=True, exist_ok=True)
+
+    if type(_src) == str:
+        # load image
+        src = Path(_src)
+        image = cv2.imread(_src)
+        output = dst / src.stem
+    else:
+        image = _src
+        output = dst / 'output'
+
+    if type(_prompt) == str:
+        __prompt = _prompt.split(",")
+        _prompt = {}
+        for p in __prompt:
+            k, v = p.split(':')
+            _prompt[k] = v
 
     # Building GroundingDINO inference model
     grounding_dino_model = Model(
@@ -65,9 +80,6 @@ def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="
 
     # Predict classes and hyper-param for GroundingDINO
     prompt = [*map(str.lower, _prompt.keys())]
-
-    # load image
-    image = cv2.imread(_src)
 
     # detect objects
     detections = grounding_dino_model.predict_with_classes(
@@ -105,7 +117,8 @@ def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="
 
         _polys = []
         for _poly in poly:
-            _polys.append(_poly.squeeze().astype(int).tolist())
+            approx = cv2.approxPolyDP(_poly, cv2.arcLength(_poly, True) * 0.001, True)
+            _polys.append(approx.squeeze().astype(int).tolist())
         polys.append(_polys)
 
     mask_canvas = np.zeros_like(image, dtype=np.uint8)
@@ -121,12 +134,15 @@ def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="
     class_id = detections.class_id.astype(int).tolist()
     json_data = {}
     for idx, (_id, conf, box, poly) in enumerate(zip(class_id, confidences, boxes, polys)):
-        json_data[idx] = {"cls": _prompt[prompt[_id]], "conf": conf, "box": box, "poly": poly}
+        json_data[str(idx)] = {"cls": _prompt[prompt[_id]], "conf": conf, "box": box, "poly": poly}
 
-    with open(f"{dst / src.stem}.json", "w") as f:
-        dump(json_data, f, indent=4, ensure_ascii=False)
+    if type(_src) == str:
+        with open(f"{output}.json", "w") as f:
+            dump(json_data, f, indent=4, ensure_ascii=False)
 
-    # save images
-    cv2.imwrite(f"{dst / src.stem}_det.jpg", annotated_frame)
-    cv2.imwrite(f"{dst / src.stem}_seg.jpg", annotated_image)
-    cv2.imwrite(f"{dst / src.stem}_mask.jpg", annotated_mask)
+        # save images
+        cv2.imwrite(f"{output}_det.jpg", annotated_frame)
+        cv2.imwrite(f"{output}_seg.jpg", annotated_image)
+        cv2.imwrite(f"{output}_mask.jpg", annotated_mask)
+    else:
+        return annotated_frame, annotated_image, annotated_mask, json_data
