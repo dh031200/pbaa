@@ -50,7 +50,7 @@ def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) ->
     return np.array(result_masks)
 
 
-def inference(_src, _prompt, box_threshold, nms_threshold, output_dir):
+def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="."):
     src = Path(_src)
     dst = Path(output_dir)
     _prompt = {i.lower(): v for i, v in _prompt}
