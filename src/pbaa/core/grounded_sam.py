@@ -61,13 +61,13 @@ def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="
         output = dst / src.stem
     else:
         image = _src
-        output = dst / 'output'
+        output = dst / "output"
 
     if type(_prompt) == str:
         __prompt = _prompt.split(",")
         _prompt = {}
         for p in __prompt:
-            k, v = p.split(':')
+            k, v = p.split(":")
             _prompt[k] = v
 
     # Building GroundingDINO inference model

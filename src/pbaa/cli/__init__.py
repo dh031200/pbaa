@@ -5,7 +5,7 @@ import sys
 
 import click
 
-from pbaa import inference, model_init, app
+from pbaa import app, inference, model_init
 from pbaa.__about__ import __version__
 
 
@@ -26,7 +26,7 @@ from pbaa.__about__ import __version__
 def pbaa(src, prompt, box_threshold, nms_threshold, output_dir, gradio):
     model_init()
     if gradio:
-        click.echo('Launch gradio app')
+        click.echo("Launch gradio app")
         app(inference)
     else:
         is_failed = False
