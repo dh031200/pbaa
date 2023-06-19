@@ -60,8 +60,8 @@ inference("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
 ## Demo
 
 ```console
-## Source : assets/demo9.jpg
-## prompts : {"plant" : "plant", "picture" : "picture", "dog": "dog", "lamp" : "lamp", "carpet" : "carpet", "sofa" : "sofa"}
+# Source : assets/demo9.jpg
+# prompts : {"plant" : "plant", "picture" : "picture", "dog": "dog", "lamp" : "lamp", "carpet" : "carpet", "sofa" : "sofa"}
 
 pbaa -s assets/demo9.jpg -p plant plant -p picture picture -p dog dog -p lamp lamp -p carpet carpet -p sofa sofa
 ```
