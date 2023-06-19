@@ -23,4 +23,5 @@ from pbaa.__about__ import __version__
 @click.option("--output_dir", "-o", type=str, default=".", help="Path to result data (default: '.')")
 def pbaa(src, prompt, box_threshold, nms_threshold, output_dir):
     model_init()
-    inference(src, prompt, box_threshold, nms_threshold, output_dir)
+    _prompt = {i.lower(): v for i, v in prompt}
+    inference(src, _prompt, box_threshold, nms_threshold, output_dir)
