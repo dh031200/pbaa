@@ -5,7 +5,7 @@ from pbaa.core.check import check
 
 check()
 
-from pbaa.core.gradio_app import app
+from pbaa.core.gradio_app import app  # noqa
 
 from .grounded_sam import inference, model_init  # noqa
 
