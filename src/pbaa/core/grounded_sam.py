@@ -53,6 +53,7 @@ def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) ->
 def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="."):
     src = Path(_src)
     dst = Path(output_dir)
+    dst.mkdir(parents=True, exist_ok=True)
     _prompt = {i.lower(): v for i, v in _prompt}
 
     # Building GroundingDINO inference model
