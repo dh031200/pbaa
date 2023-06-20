@@ -188,6 +188,7 @@ def check():
             pass
         else:
             if not installed_packages[name]:
+                logger.warning(f"Module `{name}` not found. Try to install.")
                 if name == "torch" and is_arm:
                     install_torch_arm()
                 elif name == "torchvision":
@@ -205,11 +206,10 @@ def check():
                 else:
                     install_dependency(name, version)
                 installed_packages = get_installed_packages()
-            else:
-                logger.info(f"{name} : {installed_packages[name]}")
 
             if not installed_packages[name]:
                 raise ModuleNotFoundError
+    logger.info("Dependencies checked successfully.")
 
 
 if __name__ == "__main__":

@@ -129,6 +129,8 @@ ignore = [
   "S105", "S106", "S107",
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Ignore binding all interfaces
+  "S104",
   # Ignore Subprocess
   "S602", "S603", "S605", "S607",
 ]

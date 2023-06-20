@@ -1,5 +1,6 @@
 from json import dump
 from pathlib import Path
+from uuid import uuid4
 
 import cv2
 import numpy as np
@@ -14,119 +15,185 @@ from segment_anything import SamPredictor, sam_model_registry
 
 HQ = False
 GROUNDING_DINO_CHECKPOINT_PATH = Path("groundingdino_swint_ogc.pth")
+GROUNDING_DINO_DOWNLOAD_URL = (
+    "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
+)
 
 if HQ:
     SAM_CHECKPOINT_PATH = Path("sam_hq_vit_h.pth")
-    url = "https://blueclairvoyancestorage.blob.core.windows.net/package/sam_hq_vit_h.pth"
+    SAM_DOWNLOAD_URL = "https://blueclairvoyancestorage.blob.core.windows.net/package/sam_hq_vit_h.pth"
 else:
     SAM_CHECKPOINT_PATH = Path("sam_vit_h_4b8939.pth")
-    url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
+    SAM_DOWNLOAD_URL = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
 
 # Segment-Anything checkpoint
 SAM_ENCODER_VERSION = "vit_h"
 
 
-def model_init():
-    # GroundingDINO config and checkpoint
-    if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
-        logger.warning("GROUNDING_DINO_CHECKPOINT doesn't exist")
-        logger.info("Start download")
-        wget.download(
-            "https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth"
-        )
-    if not SAM_CHECKPOINT_PATH.exists():
-        logger.warning("SAM_CHECKPOINT_PATH doesn't exist")
-        logger.info("Start download")
-        wget.download(url)
+class PBAA:
+    def __init__(self):
+        self.model_init()
+        self.grounding_dino_model = None
+        self.sam_predictor = None
+        self.box_annotator = sv.BoxAnnotator()
+        self.mask_annotator = sv.MaskAnnotator()
+
+    @staticmethod
+    def model_init():
+        # GroundingDINO config and checkpoint
+        if not GROUNDING_DINO_CHECKPOINT_PATH.exists():
+            logger.warning("GROUNDING_DINO_CHECKPOINT doesn't exist")
+            logger.info("Start download")
+            wget.download(GROUNDING_DINO_DOWNLOAD_URL)
+        if not SAM_CHECKPOINT_PATH.exists():
+            logger.warning("SAM_CHECKPOINT doesn't exist")
+            logger.info("Start download")
+            wget.download(SAM_DOWNLOAD_URL)
+
+    def segment(self, image: np.ndarray, xyxy: np.ndarray) -> np.ndarray:
+        self.sam_predictor.set_image(image)
+        result_masks = []
+        for box in xyxy:
+            masks, scores, logits = self.sam_predictor.predict(box=box, multimask_output=True)
+            index = np.argmax(scores)
+            result_masks.append(masks[index])
+        return np.array(result_masks)
+
+    def inference(
+        self, src, _prompt, annot_format=None, box_threshold=0.25, nms_threshold=0.8, save=None, output_dir="outputs"
+    ):
+        if (src is None) or (not _prompt):
+            return None, None, None, None
+
+        dst = Path(output_dir)
+        dst.mkdir(parents=True, exist_ok=True)
+
+        annotated_frame, annotated_image, annotated_mask, json_data, detections = None, None, None, {}, []
+
+        if annot_format is None:
+            annot_format = ["Rectangle", "Polygon", "Mask"]
+        if save is None:
+            save = False
+        rectangle, polygon, mask = (i in annot_format for i in ["Rectangle", "Polygon", "Mask"])
+        extension = ".jpg"
+
+        if type(src) == str:
+            image = cv2.imread(src)
+            src = Path(src)
+            output = dst / src.stem
+            extension = src.suffix
+        else:
+            image = src
+            output = dst / str(uuid4())
+
+        if type(_prompt) == str:
+            __prompt = _prompt.split(",")
+            _prompt = {}
+            for p in __prompt:
+                split_prompt = p.split(":")
+                if len(split_prompt) == 1:
+                    v = split_prompt[0].strip()
+                    k = v
+                else:
+                    k, v = map(str.strip, p.split(":"))
+                _prompt[k] = v
+
+        # Predict classes and hyper-param for GroundingDINO
+        prompt = [*map(str.lower, _prompt.keys())]
+
+        if any([rectangle, polygon, mask]):
+            # Building GroundingDINO inference model
+            if self.grounding_dino_model is None:
+                self.grounding_dino_model = Model(
+                    model_config_path=grounding_dino_config_path, model_checkpoint_path=GROUNDING_DINO_CHECKPOINT_PATH
+                )
+
+            # detect objects
+            detections = self.grounding_dino_model.predict_with_classes(
+                image=image, classes=prompt, box_threshold=box_threshold, text_threshold=box_threshold
+            )
+
+            nms_idx = (
+                torchvision.ops.nms(
+                    torch.from_numpy(detections.xyxy), torch.from_numpy(detections.confidence), nms_threshold
+                )
+                .numpy()
+                .tolist()
+            )
+
+            detections.xyxy = detections.xyxy[nms_idx]
+            detections.confidence = detections.confidence[nms_idx]
+            detections.class_id = detections.class_id[nms_idx]
+
+        if rectangle:
+            # annotate image with detections
+            labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
+            annotated_frame = self.box_annotator.annotate(scene=image.copy(), detections=detections, labels=labels)
+
+        if any([polygon, mask]):
+            # Building SAM Model and SAM Predictor
+            if self.sam_predictor is None:
+                self.sam_predictor = SamPredictor(
+                    sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH)
+                )
+
+            # convert detections to masks
+            detections.mask = self.segment(image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB), xyxy=detections.xyxy)
+
+            polys = []
+            for _mask in detections.mask:
+                canvas = np.zeros((image.shape[:2]), dtype=np.uint8)
+                canvas[_mask] = 255
+                poly, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                _polys = []
+                for _poly in poly:
+                    approx = cv2.approxPolyDP(_poly, cv2.arcLength(_poly, True) * 0.001, True)
+                    _polys.append(approx.squeeze().astype(int).tolist())
+                polys.append(_polys)
+            detections.__setattr__("poly", polys)
+
+            if mask:
+                mask_canvas = np.zeros_like(image, dtype=np.uint8)
+                annotated_mask = self.mask_annotator.annotate(scene=mask_canvas, detections=detections)
+
+            if polygon:
+                labels = [
+                    f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections
+                ]
+
+                annotated_image = self.mask_annotator.annotate(scene=image.copy(), detections=detections)
+                annotated_image = self.box_annotator.annotate(
+                    scene=annotated_image, detections=detections, labels=labels
+                )
+
+        json_data["filename"] = str(output)
+        json_data["prompt"] = _prompt
+        for idx in range(len(detections)):
+            json_data[str(idx)] = {}
+            target = json_data[str(idx)]
+            target["class"] = _prompt[prompt[detections.class_id[idx]]]
+            target["conf"] = round(float(detections.confidence[idx]), 4)
+            if rectangle or mask:
+                target["rectangle"] = [*map(int, detections.xyxy[idx])]
+            if polygon:
+                target["polygon"] = detections.poly[idx]
+
+        if save:
+            save_images(output, annotated_frame, annotated_image, annotated_mask, extension)
+            save_json(output, json_data)
+
+        return annotated_frame, annotated_image, annotated_mask, json_data
 
 
-def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) -> np.ndarray:
-    sam_predictor.set_image(image)
-    result_masks = []
-    for box in xyxy:
-        masks, scores, logits = sam_predictor.predict(box=box, multimask_output=True)
-        index = np.argmax(scores)
-        result_masks.append(masks[index])
-    return np.array(result_masks)
+def save_images(name, det, seg, mask, extension):
+    if det is not None:
+        cv2.imwrite(f"{name}_det{extension}", det)
+    if seg is not None:
+        cv2.imwrite(f"{name}_seg{extension}", seg)
+    if mask is not None:
+        cv2.imwrite(f"{name}_mask{extension}", mask)
 
 
-def inference(_src, _prompt, box_threshold=0.25, nms_threshold=0.8, output_dir="."):
-    src = Path(_src)
-    dst = Path(output_dir)
-    dst.mkdir(parents=True, exist_ok=True)
-
-    # Building GroundingDINO inference model
-    grounding_dino_model = Model(
-        model_config_path=grounding_dino_config_path, model_checkpoint_path=GROUNDING_DINO_CHECKPOINT_PATH
-    )
-
-    # Building SAM Model and SAM Predictor
-    sam_predictor = SamPredictor(sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH))
-
-    # Predict classes and hyper-param for GroundingDINO
-    prompt = [*map(str.lower, _prompt.keys())]
-
-    # load image
-    image = cv2.imread(_src)
-
-    # detect objects
-    detections = grounding_dino_model.predict_with_classes(
-        image=image, classes=prompt, box_threshold=box_threshold, text_threshold=box_threshold
-    )
-
-    # annotate image with detections
-    box_annotator = sv.BoxAnnotator()
-    labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
-    annotated_frame = box_annotator.annotate(scene=image.copy(), detections=detections, labels=labels)
-
-    nms_idx = (
-        torchvision.ops.nms(torch.from_numpy(detections.xyxy), torch.from_numpy(detections.confidence), nms_threshold)
-        .numpy()
-        .tolist()
-    )
-
-    detections.xyxy = detections.xyxy[nms_idx]
-    detections.confidence = detections.confidence[nms_idx]
-    detections.class_id = detections.class_id[nms_idx]
-
-    # Prompting SAM with detected boxes
-    # convert detections to masks
-    detections.mask = segment(
-        sam_predictor=sam_predictor, image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB), xyxy=detections.xyxy
-    )
-
-    confidences = [round(i, 4) for i in detections.confidence.astype(float)]
-    boxes = detections.xyxy.astype(int).tolist()
-    polys = []
-    for mask in detections.mask:
-        canvas = np.zeros((image.shape[:2]), dtype=np.uint8)
-        canvas[mask] = 255
-        poly, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        _polys = []
-        for _poly in poly:
-            _polys.append(_poly.squeeze().astype(int).tolist())
-        polys.append(_polys)
-
-    mask_canvas = np.zeros_like(image, dtype=np.uint8)
-
-    # annotate image with detections
-    box_annotator = sv.BoxAnnotator()
-    mask_annotator = sv.MaskAnnotator()
-    labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
-    annotated_image = mask_annotator.annotate(scene=image.copy(), detections=detections)
-    annotated_mask = mask_annotator.annotate(scene=mask_canvas, detections=detections)
-    annotated_image = box_annotator.annotate(scene=annotated_image, detections=detections, labels=labels)
-
-    class_id = detections.class_id.astype(int).tolist()
-    json_data = {}
-    for idx, (_id, conf, box, poly) in enumerate(zip(class_id, confidences, boxes, polys)):
-        json_data[idx] = {"cls": _prompt[prompt[_id]], "conf": conf, "box": box, "poly": poly}
-
-    with open(f"{dst / src.stem}.json", "w") as f:
+def save_json(name, json_data):
+    with open(f"{name}.json", "w") as f:
         dump(json_data, f, indent=4, ensure_ascii=False)
-
-    # save images
-    cv2.imwrite(f"{dst / src.stem}_det.jpg", annotated_frame)
-    cv2.imwrite(f"{dst / src.stem}_seg.jpg", annotated_image)
-    cv2.imwrite(f"{dst / src.stem}_mask.jpg", annotated_mask)
