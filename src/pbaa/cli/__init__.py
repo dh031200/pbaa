@@ -5,7 +5,7 @@ import sys
 
 import click
 
-from pbaa import app, inference, model_init
+from pbaa import PBAA, app
 from pbaa.__about__ import __version__
 
 
@@ -21,13 +21,13 @@ from pbaa.__about__ import __version__
 )
 @click.option("--box_threshold", "-b", type=float, default=0.25, help="Threshold for Object Detection (default: 0.25)")
 @click.option("--nms_threshold", "-n", type=float, default=0.8, help="Threshold for NMS (default: 0.8)")
-@click.option("--output_dir", "-o", type=str, default=".", help="Path to result data (default: '.')")
+@click.option("--output_dir", "-o", type=str, default="outputs", help="Path to result data (default: 'outputs')")
 @click.option("--gradio", "-g", type=bool, default=False, is_flag=True, help="Launch gradio app")
 def pbaa(src, prompt, box_threshold, nms_threshold, output_dir, gradio):
-    model_init()
+    annotator = PBAA()
     if gradio:
         click.echo("Launch gradio app")
-        app(inference)
+        app(annotator.inference)
     else:
         is_failed = False
         if not src:
@@ -39,4 +39,12 @@ def pbaa(src, prompt, box_threshold, nms_threshold, output_dir, gradio):
         if is_failed:
             sys.exit(-1)
         _prompt = {i.lower(): v for i, v in prompt}
-        inference(src, _prompt, box_threshold, nms_threshold, output_dir)
+        annotator.inference(
+            src=src,
+            _prompt=_prompt,
+            annot_format=None,
+            box_threshold=box_threshold,
+            nms_threshold=nms_threshold,
+            save=True,
+            output_dir=output_dir,
+        )

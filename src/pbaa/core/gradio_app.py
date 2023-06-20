@@ -9,9 +9,15 @@ def app(inference):
         inference,
         inputs=[
             gr.Image(label="Image"),
-            gr.Textbox(label="Prompt-class (ex: black cat:cat, white dog:dog, ...)"),
+            gr.Textbox(
+                label="Prompt",
+                info="Enter only the prompt or use a colon to enter a specific class."
+                "Inputs are separated by commas. (ex: black cat:cat, dog, ...)",
+            ),
+            gr.CheckboxGroup(["Rectangle", "Polygon", "Mask"], label="Format", info="Annotation format"),
             gr.Slider(0, 1, 0.25, label="Box Threshold"),
             gr.Slider(0, 1, 0.8, label="NMS Threshold"),
+            gr.Checkbox(label="Save", info="Save results"),
         ],
         outputs=[
             gr.Image(label="Detection"),
