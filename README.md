@@ -21,17 +21,23 @@ Easy inference implementation of [Grounded-SAM](https://github.com/IDEA-Research
 
 ### Docker (Recommend)
 
-```console
-git clone https://github.com/dh031200/pbaa.git
+```bash
+git clone https://github.com/dh031200/pbaa.git && cd pbaa
 docker build docker -t pbaa:latest
+
+# running the Gradio demo directly
+docker run --gpus all -it --ipc=host -v `pwd`:/workspace -p 7860:7860 pbaa:latest pbaa -g
+
+# container environment
 docker run --gpus all -it --ipc=host -v `pwd`:/workspace -p 7860:7860 pbaa:latest
+
 ```
 
 ### Without docker
 
 The code requires `python>=3.8`, `CUDA==11.7`.
 
-```console
+```bash
 pip install pbaa
 ```
 
@@ -39,7 +45,7 @@ pip install pbaa
 
 ### Options
 
-```console
+```bash
 Usage: pbaa [OPTIONS]
 
 Options:
@@ -56,7 +62,7 @@ Options:
 
 ### CLI
 
-```console
+```bash
 # pbaa -s <Source> -p <prompt> <class> -p <prompt> <class> ...
 
 pbaa -s source_image.jpg -p "black dog" dog
@@ -77,7 +83,7 @@ annotator("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
 
 Run the [gradio](https://github.com/gradio-app/gradio) demo with a simple command
 
-```console
+```bash
 pbaa -g
 ```
 
@@ -95,7 +101,7 @@ You can now access Gradio demos using your browser.
 
 ## Demo
 
-```console
+```bash
 # Source : assets/demo9.jpg
 # prompts : {"plant" : "plant", "picture" : "picture", "dog": "dog", "lamp" : "lamp", "carpet" : "carpet", "sofa" : "sofa"}
 
@@ -110,16 +116,16 @@ pbaa -s assets/demo9.jpg -p plant plant -p picture picture -p dog dog -p lamp la
 
 [demo9.json](https://github.com/dh031200/pbaa/blob/main/assets/demo9.json)<br>
 
-```console
+```bash
 json structure
 
 filename
 prompt
 index
-  ├ cls : class name
+  ├ class : class name
   ├ conf : confidence score
-  ├ box : bounding box coordinates
-  └ poly : polygon coordinates
+  ├ rectangle : bounding box coordinates
+  └ polygon : polygon coordinates
 ```
 
 ## License
