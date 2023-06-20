@@ -11,8 +11,9 @@ Easy inference implementation of [Grounded-SAM](https://github.com/IDEA-Research
 **Table of Contents**
 
 - [Installation](#installation)
-- [Usage](#Usage)
-- [Demo](#Demo)
+- [Usage](#usage)
+- [Gradio](#gradio)
+- [Demo](#demo)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
 
@@ -88,6 +89,7 @@ Running on local URL:  http://0.0.0.0:7860
 ```
 
 You can now access Gradio demos using your browser.
+[localhost:7860](http://localhost:7860)
 
 ![gradio_demo](https://github.com/dh031200/pbaa/blob/main/assets/gradio_demo.png?raw=true)
 
