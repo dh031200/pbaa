@@ -24,7 +24,7 @@ Easy inference implementation of [Grounded-SAM](https://github.com/IDEA-Research
 ```console
 git clone https://github.com/dh031200/pbaa.git
 docker build docker -t pbaa:latest
-docker run --gpus all -it --ipc=host -v `pwd`:/workspace pbaa:latest
+docker run --gpus all -it --ipc=host -v `pwd`:/workspace -p 7860:7860 pbaa:latest
 ```
 
 ### Without docker
@@ -66,11 +66,11 @@ pbaa -s source_image.jpg -p "black dog" dog -p "white cat" cat
 ### Python
 
 ```python
-from pbaa import model_init, inference
+from pbaa import PBAA
 
-model_init()
-# inference(<Source path>, <prompt:class>, box_threshold=0.25, nms_threshold=0.8, output_dir=".")
-inference("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
+annotator = PBAA()
+# inference(<Source path>, <prompt:class dict>, box_threshold=0.25, nms_threshold=0.8, save=None, output_dir="outputs")
+annotator("path/to/source_image.jpg", {"black dog": "dog", "white cat": "cat"})
 ```
 
 ## Gradio

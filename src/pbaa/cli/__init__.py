@@ -41,7 +41,7 @@ def pbaa(src, prompt, box_threshold, nms_threshold, output_dir, gradio):
         _prompt = {i.lower(): v for i, v in prompt}
         annotator.inference(
             src=src,
-            _prompt=_prompt,
+            prompt=_prompt,
             annot_format=None,
             box_threshold=box_threshold,
             nms_threshold=nms_threshold,

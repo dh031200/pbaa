@@ -38,6 +38,11 @@ class PBAA:
         self.box_annotator = sv.BoxAnnotator()
         self.mask_annotator = sv.MaskAnnotator()
 
+    def __call__(
+        self, src, _prompt, annot_format=None, box_threshold=0.25, nms_threshold=0.8, save=None, output_dir="outputs"
+    ):
+        return self.inference(src, _prompt, annot_format, box_threshold, nms_threshold, save, output_dir)
+
     @staticmethod
     def model_init():
         # GroundingDINO config and checkpoint
@@ -60,9 +65,11 @@ class PBAA:
         return np.array(result_masks)
 
     def inference(
-        self, src, _prompt, annot_format=None, box_threshold=0.25, nms_threshold=0.8, save=None, output_dir="outputs"
+        self, src, prompt, annot_format=None, box_threshold=0.25, nms_threshold=0.8, save=None, output_dir="outputs"
     ):
-        if (src is None) or (not _prompt):
+        if (src is None) or (not prompt):
+            s = ", ".join(["src" if src is None else "", "prompt" if prompt is None else ""])
+            logger.warning(f"{s} required")
             return None, None, None, None
 
         dst = Path(output_dir)
@@ -86,9 +93,9 @@ class PBAA:
             image = src
             output = dst / str(uuid4())
 
-        if type(_prompt) == str:
-            __prompt = _prompt.split(",")
-            _prompt = {}
+        if type(prompt) == str:
+            __prompt = prompt.split(",")
+            prompt = {}
             for p in __prompt:
                 split_prompt = p.split(":")
                 if len(split_prompt) == 1:
@@ -96,10 +103,10 @@ class PBAA:
                     k = v
                 else:
                     k, v = map(str.strip, p.split(":"))
-                _prompt[k] = v
+                prompt[k] = v
 
         # Predict classes and hyper-param for GroundingDINO
-        prompt = [*map(str.lower, _prompt.keys())]
+        _prompt = [*map(str.lower, prompt.keys())]
 
         if any([rectangle, polygon, mask]):
             # Building GroundingDINO inference model
@@ -110,7 +117,7 @@ class PBAA:
 
             # detect objects
             detections = self.grounding_dino_model.predict_with_classes(
-                image=image, classes=prompt, box_threshold=box_threshold, text_threshold=box_threshold
+                image=image, classes=_prompt, box_threshold=box_threshold, text_threshold=box_threshold
             )
 
             nms_idx = (
@@ -127,7 +134,7 @@ class PBAA:
 
         if rectangle:
             # annotate image with detections
-            labels = [f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
+            labels = [f"{prompt[_prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections]
             annotated_frame = self.box_annotator.annotate(scene=image.copy(), detections=detections, labels=labels)
 
         if any([polygon, mask]):
@@ -158,7 +165,7 @@ class PBAA:
 
             if polygon:
                 labels = [
-                    f"{_prompt[prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections
+                    f"{prompt[_prompt[class_id]]} {confidence:0.2f}" for _, _, confidence, class_id, _ in detections
                 ]
 
                 annotated_image = self.mask_annotator.annotate(scene=image.copy(), detections=detections)
@@ -167,11 +174,11 @@ class PBAA:
                 )
 
         json_data["filename"] = str(output)
-        json_data["prompt"] = _prompt
+        json_data["prompt"] = prompt
         for idx in range(len(detections)):
             json_data[str(idx)] = {}
             target = json_data[str(idx)]
-            target["class"] = _prompt[prompt[detections.class_id[idx]]]
+            target["class"] = prompt[_prompt[detections.class_id[idx]]]
             target["conf"] = round(float(detections.confidence[idx]), 4)
             if rectangle or mask:
                 target["rectangle"] = [*map(int, detections.xyxy[idx])]
